@@ -32,14 +32,14 @@ export default function Home() {
                 </div>
               </div>
               <div className="flex items-center justify-center lg:justify-end">
-                <div className="rounded-xl bg-[#8B5A2B] p-12 md:p-16 flex flex-col items-center justify-center w-full max-w-[420px] aspect-square">
-                  <div className="flex gap-3 mb-6">
-                    <div className="w-6 h-6 bg-white rounded-full"></div>
-                    <div className="w-6 h-6 bg-white rounded-full"></div>
-                    <div className="w-6 h-6 bg-white rounded-full"></div>
+                <div className="rounded-lg bg-[#8B5A2B] flex flex-col items-center justify-center w-full max-w-[440px] min-h-[440px] py-20 px-16">
+                  <div className="flex gap-4 mb-8">
+                    <div className="w-8 h-8 bg-white rounded-full"></div>
+                    <div className="w-8 h-8 bg-white rounded-full"></div>
+                    <div className="w-8 h-8 bg-white rounded-full"></div>
                   </div>
-                  <span className="text-white text-4xl md:text-5xl font-light tracking-[0.3em] mb-2">TOKI</span>
-                  <span className="text-white text-xl md:text-2xl font-light tracking-[0.25em]">CONNECT</span>
+                  <span className="text-white text-5xl md:text-6xl font-light tracking-[0.35em] mb-3">TOKI</span>
+                  <span className="text-white text-2xl md:text-3xl font-light tracking-[0.3em]">CONNECT</span>
                 </div>
               </div>
             </div>
