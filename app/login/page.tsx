@@ -2,7 +2,6 @@
 
 import { useEffect, useState, type FormEvent, type ChangeEvent } from "react"
 import Link from "next/link"
-import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -102,38 +101,24 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#f5f5f5]">
+    <div className="flex flex-col min-h-screen bg-muted">
       <SiteHeader showAuthButtons={false} />
       <main className="flex-1 flex items-center justify-center px-4 py-10 md:py-16">
-        <Card className="w-full max-w-md border-[#c9cfda] shadow-sm">
-          <CardHeader className="space-y-1 text-center">
+        <Card className="w-full max-w-md border shadow-sm bg-card">
+          <CardHeader className="space-y-1 text-center pb-4">
             <div className="flex justify-center mb-4">
-              <div className="relative w-20 h-20 bg-[#8B5A2B]">
-                <Image
-                  src="/logo.png"
-                  alt="TOKI CONNECT Logo"
-                  fill
-                  className="object-contain"
-                  onError={(e) => {
-                    // Fallback to text if image fails to load
-                    e.currentTarget.style.display = "none"
-                    e.currentTarget.parentElement?.classList.add(
-                      "bg-[#8B5A2B]",
-                      "rounded-full",
-                      "flex",
-                      "items-center",
-                      "justify-center",
-                    )
-                    const textNode = document.createElement("span")
-                    textNode.textContent = "TC"
-                    textNode.className = "text-white text-2xl font-bold"
-                    e.currentTarget.parentElement?.appendChild(textNode)
-                  }}
-                />
+              <div className="relative w-20 h-20 bg-[#8B5A2B] rounded-lg flex flex-col items-center justify-center p-3">
+                <div className="flex gap-1 mb-1">
+                  <div className="w-2 h-2 bg-white rounded-full"></div>
+                  <div className="w-2 h-2 bg-white rounded-full"></div>
+                  <div className="w-2 h-2 bg-white rounded-full"></div>
+                </div>
+                <span className="text-white text-[10px] font-light tracking-wider">TOKI</span>
+                <span className="text-white text-[7px] font-light tracking-wider">CONNECT</span>
               </div>
             </div>
-            <CardTitle className="text-2xl font-bold">Welcome back</CardTitle>
-            <CardDescription>Sign in to your account</CardDescription>
+            <CardTitle className="text-2xl font-bold text-foreground">Welcome back</CardTitle>
+            <CardDescription className="text-muted-foreground">Sign in to your account</CardDescription>
           </CardHeader>
           <CardContent>
             {error && (
@@ -144,7 +129,7 @@ export default function LoginPage() {
             <form onSubmit={handleSubmit}>
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email" className="text-foreground">Email</Label>
                   <Input
                     id="email"
                     type="email"
@@ -153,13 +138,13 @@ export default function LoginPage() {
                     onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                     required
                     disabled={isLoading}
-                    className="focus:ring-2 focus:ring-[#8B5A2B] focus:border-[#8B5A2B]"
+                    className="border-input focus:ring-2 focus:ring-[#8B5A2B] focus:border-[#8B5A2B]"
                   />
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="password">Password</Label>
-                    <Link href="/forgot-password" className="text-sm text-[#8B5A2B] hover:underline">
+                    <Label htmlFor="password" className="text-foreground">Password</Label>
+                    <Link href="/forgot-password" className="text-sm text-[#8B5A2B] hover:underline font-medium">
                       Forgot password?
                     </Link>
                   </div>
@@ -170,7 +155,7 @@ export default function LoginPage() {
                     onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                     required
                     disabled={isLoading}
-                    className="focus:ring-2 focus:ring-[#8B5A2B] focus:border-[#8B5A2B]"
+                    className="border-input focus:ring-2 focus:ring-[#8B5A2B] focus:border-[#8B5A2B]"
                   />
                 </div>
                 <Button type="submit" className="w-full bg-[#8B5A2B] hover:bg-[#8B5A2B]/90" disabled={isLoading}>
@@ -185,10 +170,10 @@ export default function LoginPage() {
                 </Button>
               </div>
             </form>
-            <div className="mt-4 text-center text-sm">
+            <div className="mt-4 text-center text-sm text-muted-foreground">
               <p>
-                Don't have an account?{" "}
-                <Link href={`/signup?role=${role}`} className="text-[#8B5A2B] hover:underline">
+                {"Don't have an account?"}{" "}
+                <Link href={`/signup?role=${role}`} className="text-[#8B5A2B] hover:underline font-medium">
                   Sign up
                 </Link>
               </p>
@@ -199,17 +184,13 @@ export default function LoginPage() {
       <footer className="border-t py-6 md:py-0 bg-[#8B5A2B] text-white">
         <div className="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row px-4 md:px-6">
           <div className="flex items-center gap-2">
-            <div className="relative w-8 h-8 bg-[#8B5A2B] rounded-full flex items-center justify-center">
-              <span className="text-white text-xs font-bold">TC</span>
-              <Image
-                src="/logo.png"
-                alt="TOKI CONNECT Logo"
-                fill
-                className="object-contain"
-                onError={(e) => {
-                  e.currentTarget.style.display = "none"
-                }}
-              />
+            <div className="w-8 h-8 bg-[#8B5A2B] rounded-lg flex flex-col items-center justify-center p-1">
+              <div className="flex gap-0.5 mb-0.5">
+                <div className="w-1 h-1 bg-white rounded-full"></div>
+                <div className="w-1 h-1 bg-white rounded-full"></div>
+                <div className="w-1 h-1 bg-white rounded-full"></div>
+              </div>
+              <span className="text-white text-[5px] font-light tracking-wider">TOKI</span>
             </div>
             <p className="text-sm">© 2025 TOKI CONNECT. All rights reserved.</p>
           </div>

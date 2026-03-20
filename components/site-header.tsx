@@ -202,7 +202,7 @@ export function SiteHeader({ showAuthButtons = true }: SiteHeaderProps) {
                   </DropdownMenuContent>
                 </DropdownMenu>
                 <Link href="/signup">
-                  <Button size="sm" className="bg-[#111a2e] hover:bg-[#1a2740] text-white">Sign up</Button>
+                  <Button size="sm" className="bg-[#1a1a1a] hover:bg-[#2a2a2a] text-white">Sign up</Button>
                 </Link>
               </>
             )
