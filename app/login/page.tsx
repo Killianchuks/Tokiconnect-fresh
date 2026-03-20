@@ -1,9 +1,8 @@
 "use client"
 
-import { useState, type FormEvent, type ChangeEvent } from "react"
+import { useEffect, useState, type FormEvent, type ChangeEvent } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -13,14 +12,19 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2 } from "lucide-react"
 
 export default function LoginPage() {
-  const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard"
-  const role = searchParams.get("role") || "student"
+  const [callbackUrl, setCallbackUrl] = useState("/dashboard")
+  const [role, setRole] = useState("student")
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    setCallbackUrl(params.get("callbackUrl") || "/dashboard")
+    setRole(params.get("role") || "student")
+  }, [])
 
   // Basic email validation
   const isValidEmail = (email: string) => {
