@@ -35,7 +35,7 @@ export async function GET() {
 
 async function testDatabaseConnection() {
   try {
-    const result = await db.query("SELECT NOW()")
+    const result = await db.rawQuery("SELECT NOW()")
     return {
       connected: true,
       timestamp: result.rows[0].now,
