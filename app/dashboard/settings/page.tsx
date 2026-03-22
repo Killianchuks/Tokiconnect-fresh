@@ -110,6 +110,9 @@ export default function SettingsPage() {
     return null
   }
 
+  const normalizedRole = String(userData.role || "").trim().toLowerCase()
+  const showPaymentMethods = normalizedRole !== "admin"
+
   return (
     <div className="container px-4 py-6 md:px-6 md:py-8">
       <div className="mb-8">
@@ -166,7 +169,7 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        {userData.role === "student" ? (
+        {showPaymentMethods ? (
           <PaymentMethods
             userId={userData.id}
             userEmail={userData.email}

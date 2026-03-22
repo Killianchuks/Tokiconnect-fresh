@@ -43,7 +43,7 @@ export default function SupportPage() {
   const [newMessage, setNewMessage] = useState("")
   const [loadingMessages, setLoadingMessages] = useState(false)
   const [submitting, setSubmitting] = useState(false)
-  const [userData, setUserData] = useState<{ id: string; firstName?: string; lastName?: string } | null>(null)
+  const [userData, setUserData] = useState<{ id: string; firstName?: string; lastName?: string; role?: string } | null>(null)
   const { toast } = useToast()
 
   // Form state
@@ -53,12 +53,30 @@ export default function SupportPage() {
   const [priority, setPriority] = useState("medium")
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("linguaConnectUser")
-    if (storedUser) {
+    try {
+      const storedUser = localStorage.getItem("linguaConnectUser")
+      if (!storedUser) {
+        setLoading(false)
+        return
+      }
+
       const user = JSON.parse(storedUser)
-      setUserData(user)
-      fetchTickets(user.id)
-    } else {
+      const normalizedUser = {
+        id: String(user?.id || ""),
+        firstName: user?.firstName || user?.first_name || "",
+        lastName: user?.lastName || user?.last_name || "",
+        role: String(user?.role || "student").trim().toLowerCase(),
+      }
+
+      if (!normalizedUser.id) {
+        setLoading(false)
+        return
+      }
+
+      setUserData(normalizedUser)
+      fetchTickets(normalizedUser.id)
+    } catch (error) {
+      console.error("Error loading support user data:", error)
       setLoading(false)
     }
   }, [])
@@ -119,7 +137,7 @@ export default function SupportPage() {
       const data = await response.json()
       
       if (response.ok) {
-        setTickets([data.ticket, ...tickets])
+        setTickets((prev) => [data.ticket, ...prev])
         setIsCreateDialogOpen(false)
         setSubject("")
         setDescription("")
@@ -162,11 +180,11 @@ export default function SupportPage() {
 
       if (response.ok) {
         const data = await response.json()
-        setMessages([...messages, { 
-          ...data.message, 
+        setMessages((prev) => [...prev, {
+          ...data.message,
           first_name: userData.firstName || "You",
           last_name: userData.lastName || "",
-          user_role: "user"
+          user_role: userData.role || "student",
         }])
         setNewMessage("")
       }

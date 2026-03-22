@@ -78,10 +78,11 @@ export async function POST(request: Request) {
       console.log("✅ Password valid, login successful")
 
       // Format user data based on table structure
+      const normalizedRole = String(user.role || "student").trim().toLowerCase()
       const userData: UserData = {
         id: user.id,
         email: user.email,
-        role: user.role || "student", // Default to student if role is not set
+        role: normalizedRole || "student", // Normalize role to keep client checks consistent
       }
 
       // Add name fields based on what's available

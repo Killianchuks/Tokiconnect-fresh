@@ -58,7 +58,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       }
 
       const userData = JSON.parse(storedUser) as UserData
-      setUser(userData)
+      const normalizedUserData: UserData = {
+        ...userData,
+        role: String(userData.role || "student").trim().toLowerCase() || "student",
+      }
+
+      setUser(normalizedUserData)
+      localStorage.setItem("linguaConnectUser", JSON.stringify(normalizedUserData))
     } catch (error) {
       console.error("Error parsing user data:", error)
       window.location.href = USER_LOGIN_ROUTE
@@ -88,7 +94,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>
   }
 
-  const isTeacher = user.role === "teacher"
+  const isTeacher = String(user.role || "").trim().toLowerCase() === "teacher"
 
   const navItems = [
     {
