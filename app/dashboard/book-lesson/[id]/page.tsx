@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect, use } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
+import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, Check, CreditCard, Info } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -52,6 +52,113 @@ interface PriceCalculation {
   discounted: number
   discount: number
   total: number
+}
+
+type RawAvailabilitySlot =
+  | string
+  | {
+      day?: string
+      startTime?: string
+      endTime?: string
+      slots?: unknown
+    }
+
+const DEFAULT_TIMEZONE = "UTC"
+const SUPPORTED_TIMEZONES = new Set([
+  "America/New_York",
+  "America/Chicago",
+  "America/Denver",
+  "America/Los_Angeles",
+  "Europe/London",
+  "Europe/Paris",
+  "Europe/Berlin",
+  "Asia/Tokyo",
+  "Asia/Shanghai",
+  "Australia/Sydney",
+  "UTC",
+])
+
+const defaultAvailability: TeacherAvailability[] = [
+  { day: "Monday", slots: ["9:00 - 10:00", "10:00 - 11:00", "14:00 - 15:00", "15:00 - 16:00"] },
+  { day: "Tuesday", slots: ["9:00 - 10:00", "10:00 - 11:00", "14:00 - 15:00", "15:00 - 16:00"] },
+  { day: "Wednesday", slots: ["9:00 - 10:00", "10:00 - 11:00", "14:00 - 15:00", "15:00 - 16:00"] },
+  { day: "Thursday", slots: ["9:00 - 10:00", "10:00 - 11:00", "14:00 - 15:00", "15:00 - 16:00"] },
+  { day: "Friday", slots: ["9:00 - 10:00", "10:00 - 11:00", "14:00 - 15:00", "15:00 - 16:00"] },
+]
+
+const getSafeInitialTimezone = () => {
+  try {
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+    return timezone && SUPPORTED_TIMEZONES.has(timezone) ? timezone : DEFAULT_TIMEZONE
+  } catch {
+    return DEFAULT_TIMEZONE
+  }
+}
+
+const normalizeSlots = (slots: unknown): string[] => {
+  if (!Array.isArray(slots)) return []
+
+  return slots
+    .map((slot) => {
+      if (typeof slot === "string") {
+        return slot.trim()
+      }
+
+      if (slot && typeof slot === "object") {
+        const slotRecord = slot as RawAvailabilitySlot
+        const start = typeof slotRecord.startTime === "string" ? slotRecord.startTime.trim() : ""
+        const end = typeof slotRecord.endTime === "string" ? slotRecord.endTime.trim() : ""
+
+        if (start && end) {
+          return `${start} - ${end}`
+        }
+
+        if (Array.isArray(slotRecord.slots)) {
+          return normalizeSlots(slotRecord.slots).join(", ")
+        }
+      }
+
+      return ""
+    })
+    .flatMap((slot) => slot.split(","))
+    .map((slot) => slot.trim())
+    .filter(Boolean)
+}
+
+const normalizeAvailability = (value: unknown): TeacherAvailability[] => {
+  let parsedValue = value
+
+  if (typeof parsedValue === "string") {
+    try {
+      parsedValue = JSON.parse(parsedValue)
+    } catch {
+      return defaultAvailability
+    }
+  }
+
+  if (!Array.isArray(parsedValue)) {
+    return defaultAvailability
+  }
+
+  const normalized = parsedValue
+    .map((entry) => {
+      if (!entry || typeof entry !== "object") return null
+
+      const record = entry as RawAvailabilitySlot
+      const day = typeof record.day === "string" ? record.day.trim() : ""
+      const slots = normalizeSlots(record.slots)
+      const start = typeof record.startTime === "string" ? record.startTime.trim() : ""
+      const end = typeof record.endTime === "string" ? record.endTime.trim() : ""
+
+      if (!day) return null
+      if (slots.length > 0) return { day, slots }
+      if (start && end) return { day, slots: [`${start} - ${end}`] }
+
+      return null
+    })
+    .filter((entry): entry is TeacherAvailability => Boolean(entry))
+
+  return normalized.length > 0 ? normalized : defaultAvailability
 }
 
 // Mock data for teachers (same as in find-teachers page)
@@ -218,14 +325,8 @@ const getNextTwoWeeks = (): AvailableDate[] => {
   return dates
 }
 
-interface BookLessonPageProps {
-  params: Promise<{
-    id: string
-  }>
-}
-
-export default function BookLessonPage({ params: paramsPromise }: BookLessonPageProps) {
-  const params = use(paramsPromise)
+export default function BookLessonPage() {
+  const params = useParams<{ id?: string }>()
   const router = useRouter()
   const { toast } = useToast()
   const [teacher, setTeacher] = useState<Teacher | null>(null)
@@ -245,7 +346,7 @@ export default function BookLessonPage({ params: paramsPromise }: BookLessonPage
   const [selectedDays, setSelectedDays] = useState<string[]>([])
   const [preferredTimeSlot, setPreferredTimeSlot] = useState<string>("")
   const [subscriptionDuration, setSubscriptionDuration] = useState<string>("3") // in months
-  const [selectedTimezone, setSelectedTimezone] = useState<string>(Intl.DateTimeFormat().resolvedOptions().timeZone)
+  const [selectedTimezone, setSelectedTimezone] = useState<string>(getSafeInitialTimezone)
   
   // Payment method state
   const [paymentMethods, setPaymentMethods] = useState<Array<{
@@ -309,6 +410,17 @@ export default function BookLessonPage({ params: paramsPromise }: BookLessonPage
   useEffect(() => {
     const fetchTeacher = async () => {
       const normalizedTeacherId = decodeURIComponent(String(params.id || "")).trim()
+
+      if (!normalizedTeacherId) {
+        toast({
+          title: "Teacher not found",
+          description: "The teacher you're looking for doesn't exist.",
+          variant: "destructive",
+        })
+        setLoading(false)
+        return
+      }
+
       try {
         // Try to fetch teacher from API first
         const response = await fetch(`/api/teachers/${encodeURIComponent(normalizedTeacherId)}`)
@@ -316,15 +428,8 @@ export default function BookLessonPage({ params: paramsPromise }: BookLessonPage
         if (response.ok) {
           const data = await response.json()
           if (data && !data.error) {
-            // Default availability if none provided
-            const defaultAvailability: TeacherAvailability[] = [
-              { day: "Monday", slots: ["9:00 - 10:00", "10:00 - 11:00", "14:00 - 15:00", "15:00 - 16:00"] },
-              { day: "Tuesday", slots: ["9:00 - 10:00", "10:00 - 11:00", "14:00 - 15:00", "15:00 - 16:00"] },
-              { day: "Wednesday", slots: ["9:00 - 10:00", "10:00 - 11:00", "14:00 - 15:00", "15:00 - 16:00"] },
-              { day: "Thursday", slots: ["9:00 - 10:00", "10:00 - 11:00", "14:00 - 15:00", "15:00 - 16:00"] },
-              { day: "Friday", slots: ["9:00 - 10:00", "10:00 - 11:00", "14:00 - 15:00", "15:00 - 16:00"] },
-            ]
-            
+            const normalizedAvailability = normalizeAvailability(data.availability)
+
             // Transform API data to match expected format
             const teacherData: Teacher = {
               id: data.id,
@@ -333,7 +438,7 @@ export default function BookLessonPage({ params: paramsPromise }: BookLessonPage
               rating: data.rating || 4.5,
               reviews: data.reviews || 0,
               hourlyRate: data.hourlyRate || 25,
-              availability: (data.availability && data.availability.length > 0) ? data.availability : defaultAvailability,
+              availability: normalizedAvailability,
               bio: data.bio || 'Experienced language teacher.',
               image: data.profileImage || data.image || '/diverse-classroom.png',
               discounts: data.discounts || {
@@ -365,13 +470,7 @@ export default function BookLessonPage({ params: paramsPromise }: BookLessonPage
             : null
 
           if (matchedTeacher) {
-            const defaultAvailability: TeacherAvailability[] = [
-              { day: "Monday", slots: ["9:00 - 10:00", "10:00 - 11:00", "14:00 - 15:00", "15:00 - 16:00"] },
-              { day: "Tuesday", slots: ["9:00 - 10:00", "10:00 - 11:00", "14:00 - 15:00", "15:00 - 16:00"] },
-              { day: "Wednesday", slots: ["9:00 - 10:00", "10:00 - 11:00", "14:00 - 15:00", "15:00 - 16:00"] },
-              { day: "Thursday", slots: ["9:00 - 10:00", "10:00 - 11:00", "14:00 - 15:00", "15:00 - 16:00"] },
-              { day: "Friday", slots: ["9:00 - 10:00", "10:00 - 11:00", "14:00 - 15:00", "15:00 - 16:00"] },
-            ]
+            const normalizedAvailability = normalizeAvailability(matchedTeacher.availability)
 
             const teacherData: Teacher = {
               id: matchedTeacher.id,
@@ -380,10 +479,7 @@ export default function BookLessonPage({ params: paramsPromise }: BookLessonPage
               rating: matchedTeacher.rating || 4.5,
               reviews: matchedTeacher.reviewCount || 0,
               hourlyRate: matchedTeacher.hourlyRate || 25,
-              availability:
-                matchedTeacher.availability && matchedTeacher.availability.length > 0
-                  ? matchedTeacher.availability
-                  : defaultAvailability,
+              availability: normalizedAvailability,
               bio: matchedTeacher.bio || "Experienced language teacher.",
               image: matchedTeacher.profileImage || matchedTeacher.image || "/diverse-classroom.png",
               discounts: matchedTeacher.discounts || {
