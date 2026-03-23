@@ -20,6 +20,19 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import type { User, Availability, Lesson, CalendarInfo } from "@/types/schedule"
 import { USER_LOGIN_ROUTE } from "@/lib/auth-route-config"
 
+const FOCUS_LABELS: Record<string, string> = {
+  conversation: "Conversation Practice",
+  grammar: "Grammar",
+  vocabulary: "Vocabulary Building",
+  pronunciation: "Pronunciation",
+  reading: "Reading Comprehension",
+  writing: "Writing Skills",
+  exam: "Exam Preparation",
+  business: "Business Language",
+}
+
+const formatFocusLabel = (focus: string) => FOCUS_LABELS[focus.toLowerCase()] || focus
+
 interface ParsedLessonNotes {
   studentNotes: string
   lessonFocus: string
@@ -2078,7 +2091,7 @@ export default function SchedulePage() {
             </div>
             <div>
               <p className="font-medium">Focus Area</p>
-              <p className="text-muted-foreground">{selectedLessonRequest?.focus || "Not provided"}</p>
+              <p className="text-muted-foreground">{selectedLessonRequest?.focus ? formatFocusLabel(selectedLessonRequest.focus) : "Not provided"}</p>
             </div>
             <div>
               <p className="font-medium">Student Notes</p>

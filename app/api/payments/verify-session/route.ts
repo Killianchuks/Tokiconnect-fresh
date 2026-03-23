@@ -39,6 +39,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing booking information" }, { status: 400 })
     }
 
+    // Ensure focus column exists (safe migration for DBs created before the column was added)
+    try {
+      await db.rawQuery(
+        `ALTER TABLE lessons ADD COLUMN IF NOT EXISTS focus VARCHAR(100)`,
+        []
+      )
+    } catch {
+      // Ignore – column already exists or insufficient permissions; INSERT will handle it
+    }
+
     const resolveMeetingLinkForStart = async (targetStartTime: Date): Promise<string | null> => {
       let resolvedMeetingLink: string | null = null
       let defaultMeetingLink: string | null = null
