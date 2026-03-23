@@ -99,6 +99,13 @@ export async function PUT(request: any) {
           }
         }
 
+    // Ensure optional columns exist (safe migrations for DBs created before these columns were added)
+    try {
+      await db.rawQuery(`ALTER TABLE users ADD COLUMN IF NOT EXISTS timezone TEXT`, [])
+    } catch {
+      // Ignore – column already exists or insufficient permissions
+    }
+
     // Resolve current users table columns to support environments with slightly different schemas
     const columnsResult = await db.rawQuery(
       `SELECT column_name

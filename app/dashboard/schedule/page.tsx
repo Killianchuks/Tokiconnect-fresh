@@ -13,7 +13,7 @@ import { format } from "date-fns"
 import { useToast } from "@/hooks/use-toast"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
@@ -1692,19 +1692,125 @@ export default function SchedulePage() {
                           <SelectTrigger id="timezone" className="mt-1">
                             <SelectValue placeholder="Select timezone" />
                           </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="America/New_York">Eastern Time (ET)</SelectItem>
-                            <SelectItem value="America/Chicago">Central Time (CT)</SelectItem>
-                            <SelectItem value="America/Denver">Mountain Time (MT)</SelectItem>
-                            <SelectItem value="America/Los_Angeles">Pacific Time (PT)</SelectItem>
-                            <SelectItem value="Europe/London">London (GMT/BST)</SelectItem>
-                            <SelectItem value="Europe/Paris">Paris (CET/CEST)</SelectItem>
-                            <SelectItem value="Europe/Berlin">Berlin (CET/CEST)</SelectItem>
-                            <SelectItem value="Asia/Tokyo">Tokyo (JST)</SelectItem>
-                            <SelectItem value="Asia/Dubai">Dubai (GST)</SelectItem>
-                            <SelectItem value="Australia/Sydney">Sydney (AEDT/AEST)</SelectItem>
-                            <SelectItem value="Asia/Singapore">Singapore (SGT)</SelectItem>
-                            <SelectItem value="Asia/Hong_Kong">Hong Kong (HKT)</SelectItem>
+                          <SelectContent className="max-h-96">
+                            <SelectGroup>
+                              <SelectLabel>Africa</SelectLabel>
+                              <SelectItem value="Africa/Abidjan">Abidjan (GMT)</SelectItem>
+                              <SelectItem value="Africa/Accra">Accra, Ghana (GMT)</SelectItem>
+                              <SelectItem value="Africa/Addis_Ababa">Addis Ababa, Ethiopia (EAT)</SelectItem>
+                              <SelectItem value="Africa/Algiers">Algiers, Algeria (CET)</SelectItem>
+                              <SelectItem value="Africa/Cairo">Cairo, Egypt (EET)</SelectItem>
+                              <SelectItem value="Africa/Casablanca">Casablanca, Morocco (WET)</SelectItem>
+                              <SelectItem value="Africa/Dar_es_Salaam">Dar es Salaam, Tanzania (EAT)</SelectItem>
+                              <SelectItem value="Africa/Dakar">Dakar, Senegal (GMT)</SelectItem>
+                              <SelectItem value="Africa/Douala">Douala, Cameroon (WAT)</SelectItem>
+                              <SelectItem value="Africa/Freetown">Freetown, Sierra Leone (GMT)</SelectItem>
+                              <SelectItem value="Africa/Harare">Harare, Zimbabwe (CAT)</SelectItem>
+                              <SelectItem value="Africa/Johannesburg">Johannesburg, South Africa (SAST)</SelectItem>
+                              <SelectItem value="Africa/Juba">Juba, South Sudan (EAT)</SelectItem>
+                              <SelectItem value="Africa/Kampala">Kampala, Uganda (EAT)</SelectItem>
+                              <SelectItem value="Africa/Khartoum">Khartoum, Sudan (CAT)</SelectItem>
+                              <SelectItem value="Africa/Kigali">Kigali, Rwanda (CAT)</SelectItem>
+                              <SelectItem value="Africa/Kinshasa">Kinshasa, DR Congo (WAT)</SelectItem>
+                              <SelectItem value="Africa/Lagos">Lagos, Nigeria (WAT)</SelectItem>
+                              <SelectItem value="Africa/Libreville">Libreville, Gabon (WAT)</SelectItem>
+                              <SelectItem value="Africa/Lomé">Lomé, Togo (GMT)</SelectItem>
+                              <SelectItem value="Africa/Luanda">Luanda, Angola (WAT)</SelectItem>
+                              <SelectItem value="Africa/Lusaka">Lusaka, Zambia (CAT)</SelectItem>
+                              <SelectItem value="Africa/Malabo">Malabo, Equatorial Guinea (WAT)</SelectItem>
+                              <SelectItem value="Africa/Maputo">Maputo, Mozambique (CAT)</SelectItem>
+                              <SelectItem value="Africa/Mogadishu">Mogadishu, Somalia (EAT)</SelectItem>
+                              <SelectItem value="Africa/Monrovia">Monrovia, Liberia (GMT)</SelectItem>
+                              <SelectItem value="Africa/Nairobi">Nairobi, Kenya (EAT)</SelectItem>
+                              <SelectItem value="Africa/Ndjamena">N'Djamena, Chad (WAT)</SelectItem>
+                              <SelectItem value="Africa/Niamey">Niamey, Niger (WAT)</SelectItem>
+                              <SelectItem value="Africa/Nouakchott">Nouakchott, Mauritania (GMT)</SelectItem>
+                              <SelectItem value="Africa/Ouagadougou">Ouagadougou, Burkina Faso (GMT)</SelectItem>
+                              <SelectItem value="Africa/Porto-Novo">Porto-Novo, Benin (WAT)</SelectItem>
+                              <SelectItem value="Africa/Tripoli">Tripoli, Libya (EET)</SelectItem>
+                              <SelectItem value="Africa/Tunis">Tunis, Tunisia (CET)</SelectItem>
+                              <SelectItem value="Africa/Windhoek">Windhoek, Namibia (WAT/WAST)</SelectItem>
+                            </SelectGroup>
+                            <SelectGroup>
+                              <SelectLabel>Americas</SelectLabel>
+                              <SelectItem value="America/New_York">New York — Eastern (ET)</SelectItem>
+                              <SelectItem value="America/Chicago">Chicago — Central (CT)</SelectItem>
+                              <SelectItem value="America/Denver">Denver — Mountain (MT)</SelectItem>
+                              <SelectItem value="America/Los_Angeles">Los Angeles — Pacific (PT)</SelectItem>
+                              <SelectItem value="America/Anchorage">Anchorage — Alaska (AKT)</SelectItem>
+                              <SelectItem value="Pacific/Honolulu">Honolulu — Hawaii (HST)</SelectItem>
+                              <SelectItem value="America/Toronto">Toronto (ET)</SelectItem>
+                              <SelectItem value="America/Vancouver">Vancouver (PT)</SelectItem>
+                              <SelectItem value="America/Mexico_City">Mexico City (CST)</SelectItem>
+                              <SelectItem value="America/Bogota">Bogotá, Colombia (COT)</SelectItem>
+                              <SelectItem value="America/Lima">Lima, Peru (PET)</SelectItem>
+                              <SelectItem value="America/Santiago">Santiago, Chile (CLT)</SelectItem>
+                              <SelectItem value="America/Caracas">Caracas, Venezuela (VET)</SelectItem>
+                              <SelectItem value="America/Sao_Paulo">São Paulo, Brazil (BRT)</SelectItem>
+                              <SelectItem value="America/Buenos_Aires">Buenos Aires, Argentina (ART)</SelectItem>
+                              <SelectItem value="America/Montevideo">Montevideo, Uruguay (UYT)</SelectItem>
+                            </SelectGroup>
+                            <SelectGroup>
+                              <SelectLabel>Europe</SelectLabel>
+                              <SelectItem value="Europe/London">London (GMT/BST)</SelectItem>
+                              <SelectItem value="Europe/Dublin">Dublin (GMT/IST)</SelectItem>
+                              <SelectItem value="Europe/Lisbon">Lisbon (WET/WEST)</SelectItem>
+                              <SelectItem value="Europe/Paris">Paris (CET/CEST)</SelectItem>
+                              <SelectItem value="Europe/Berlin">Berlin (CET/CEST)</SelectItem>
+                              <SelectItem value="Europe/Madrid">Madrid (CET/CEST)</SelectItem>
+                              <SelectItem value="Europe/Rome">Rome (CET/CEST)</SelectItem>
+                              <SelectItem value="Europe/Amsterdam">Amsterdam (CET/CEST)</SelectItem>
+                              <SelectItem value="Europe/Brussels">Brussels (CET/CEST)</SelectItem>
+                              <SelectItem value="Europe/Zurich">Zurich (CET/CEST)</SelectItem>
+                              <SelectItem value="Europe/Stockholm">Stockholm (CET/CEST)</SelectItem>
+                              <SelectItem value="Europe/Warsaw">Warsaw (CET/CEST)</SelectItem>
+                              <SelectItem value="Europe/Athens">Athens (EET/EEST)</SelectItem>
+                              <SelectItem value="Europe/Kiev">Kyiv (EET/EEST)</SelectItem>
+                              <SelectItem value="Europe/Moscow">Moscow (MSK)</SelectItem>
+                              <SelectItem value="Europe/Istanbul">Istanbul (TRT)</SelectItem>
+                            </SelectGroup>
+                            <SelectGroup>
+                              <SelectLabel>Middle East</SelectLabel>
+                              <SelectItem value="Asia/Dubai">Dubai (GST)</SelectItem>
+                              <SelectItem value="Asia/Riyadh">Riyadh, Saudi Arabia (AST)</SelectItem>
+                              <SelectItem value="Asia/Kuwait">Kuwait City (AST)</SelectItem>
+                              <SelectItem value="Asia/Qatar">Doha, Qatar (AST)</SelectItem>
+                              <SelectItem value="Asia/Bahrain">Bahrain (AST)</SelectItem>
+                              <SelectItem value="Asia/Jerusalem">Jerusalem (IST)</SelectItem>
+                              <SelectItem value="Asia/Beirut">Beirut, Lebanon (EET)</SelectItem>
+                              <SelectItem value="Asia/Baghdad">Baghdad, Iraq (AST)</SelectItem>
+                              <SelectItem value="Asia/Tehran">Tehran, Iran (IRST)</SelectItem>
+                            </SelectGroup>
+                            <SelectGroup>
+                              <SelectLabel>Asia</SelectLabel>
+                              <SelectItem value="Asia/Karachi">Karachi, Pakistan (PKT)</SelectItem>
+                              <SelectItem value="Asia/Kolkata">Mumbai / Delhi, India (IST)</SelectItem>
+                              <SelectItem value="Asia/Dhaka">Dhaka, Bangladesh (BST)</SelectItem>
+                              <SelectItem value="Asia/Colombo">Colombo, Sri Lanka (SLST)</SelectItem>
+                              <SelectItem value="Asia/Kathmandu">Kathmandu, Nepal (NPT)</SelectItem>
+                              <SelectItem value="Asia/Yangon">Yangon, Myanmar (MMT)</SelectItem>
+                              <SelectItem value="Asia/Bangkok">Bangkok, Thailand (ICT)</SelectItem>
+                              <SelectItem value="Asia/Jakarta">Jakarta, Indonesia (WIB)</SelectItem>
+                              <SelectItem value="Asia/Ho_Chi_Minh">Ho Chi Minh City, Vietnam (ICT)</SelectItem>
+                              <SelectItem value="Asia/Kuala_Lumpur">Kuala Lumpur, Malaysia (MYT)</SelectItem>
+                              <SelectItem value="Asia/Singapore">Singapore (SGT)</SelectItem>
+                              <SelectItem value="Asia/Manila">Manila, Philippines (PST)</SelectItem>
+                              <SelectItem value="Asia/Shanghai">Beijing / Shanghai, China (CST)</SelectItem>
+                              <SelectItem value="Asia/Hong_Kong">Hong Kong (HKT)</SelectItem>
+                              <SelectItem value="Asia/Taipei">Taipei, Taiwan (CST)</SelectItem>
+                              <SelectItem value="Asia/Seoul">Seoul, South Korea (KST)</SelectItem>
+                              <SelectItem value="Asia/Tokyo">Tokyo, Japan (JST)</SelectItem>
+                            </SelectGroup>
+                            <SelectGroup>
+                              <SelectLabel>Oceania</SelectLabel>
+                              <SelectItem value="Australia/Perth">Perth, Australia (AWST)</SelectItem>
+                              <SelectItem value="Australia/Darwin">Darwin, Australia (ACST)</SelectItem>
+                              <SelectItem value="Australia/Adelaide">Adelaide, Australia (ACST/ACDT)</SelectItem>
+                              <SelectItem value="Australia/Brisbane">Brisbane, Australia (AEST)</SelectItem>
+                              <SelectItem value="Australia/Sydney">Sydney / Melbourne (AEST/AEDT)</SelectItem>
+                              <SelectItem value="Pacific/Auckland">Auckland, New Zealand (NZST/NZDT)</SelectItem>
+                              <SelectItem value="Pacific/Fiji">Fiji (FJT)</SelectItem>
+                            </SelectGroup>
                           </SelectContent>
                         </Select>
                       </div>
