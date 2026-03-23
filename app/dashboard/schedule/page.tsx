@@ -20,6 +20,39 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import type { User, Availability, Lesson, CalendarInfo } from "@/types/schedule"
 import { USER_LOGIN_ROUTE } from "@/lib/auth-route-config"
 
+interface ParsedLessonNotes {
+  studentNotes: string
+  lessonFocus: string
+  requestedStart: string
+  requestedEnd: string
+}
+
+const parseLessonNotes = (rawNotes: unknown): ParsedLessonNotes => {
+  const emptyResult: ParsedLessonNotes = {
+    studentNotes: "",
+    lessonFocus: "",
+    requestedStart: "",
+    requestedEnd: "",
+  }
+
+  if (!rawNotes) return emptyResult
+
+  try {
+    const parsed = typeof rawNotes === "string" ? JSON.parse(rawNotes) : rawNotes
+    if (!parsed || typeof parsed !== "object") return emptyResult
+
+    const notesRecord = parsed as Record<string, unknown>
+    return {
+      studentNotes: typeof notesRecord.studentNotes === "string" ? notesRecord.studentNotes : "",
+      lessonFocus: typeof notesRecord.lessonFocus === "string" ? notesRecord.lessonFocus : "",
+      requestedStart: typeof notesRecord.requestedStart === "string" ? notesRecord.requestedStart : "",
+      requestedEnd: typeof notesRecord.requestedEnd === "string" ? notesRecord.requestedEnd : "",
+    }
+  } catch {
+    return emptyResult
+  }
+}
+
 // Helper function to format date in a specific timezone
 function formatDateInTimezone(date: Date, timeZone: string): string {
   if (!date || isNaN(date.getTime())) {
@@ -90,6 +123,8 @@ export default function SchedulePage() {
   const [selectedLessonForDecline, setSelectedLessonForDecline] = useState<Lesson | null>(null)
   const [declineNote, setDeclineNote] = useState("")
   const [isDeclining, setIsDeclining] = useState(false)
+  const [lessonRequestDialogOpen, setLessonRequestDialogOpen] = useState(false)
+  const [selectedLessonRequest, setSelectedLessonRequest] = useState<Lesson | null>(null)
 
   const resolveUserId = (userData: User | null): string | number | null => {
     if (!userData) return null
@@ -170,33 +205,44 @@ export default function SchedulePage() {
       if (upcomingResponse.ok) {
         const upcomingData = await upcomingResponse.json()
         // Transform the data to match the expected format
-        const transformedUpcoming = upcomingData.map((lesson: any) => ({
-          id: lesson.id || lesson.lesson_id || lesson.lessonId || null,
-          teacherId: lesson.teacher_id,
-          studentId: lesson.student_id,
-          teacherName: lesson.teacher_first_name 
-            ? `${lesson.teacher_first_name} ${lesson.teacher_last_name || ''}`.trim()
-            : 'Teacher',
-          studentName: lesson.student_first_name
-            ? `${lesson.student_first_name} ${lesson.student_last_name || ''}`.trim()
-            : 'Student',
-          teacherAvatar: lesson.teacher_image || '/placeholder.svg',
-          studentAvatar: lesson.student_image || '/placeholder.svg',
-          date: lesson.start_time,
-          startTime: lesson.start_time,
-          endTime: lesson.end_time,
-          status: String(lesson.status || '').toLowerCase() === 'scheduled' ? 'confirmed' : String(lesson.status || '').toLowerCase(),
-          language: lesson.type || 'Language Lesson',
-          topic: `${lesson.duration_minutes || 60} minute ${lesson.type || 'lesson'}`,
-          meetingLink: lesson.meeting_link || lesson.meetingLink || null,
-          studentTimezone: lesson.student_timezone,
-        }))
+        const transformedUpcoming = upcomingData.map((lesson: any) => {
+          const parsedNotes = parseLessonNotes(lesson.notes)
+
+          return {
+            id: lesson.id || lesson.lesson_id || lesson.lessonId || null,
+            teacherId: lesson.teacher_id,
+            studentId: lesson.student_id,
+            teacherName: lesson.teacher_first_name
+              ? `${lesson.teacher_first_name} ${lesson.teacher_last_name || ''}`.trim()
+              : 'Teacher',
+            studentName: lesson.student_first_name
+              ? `${lesson.student_first_name} ${lesson.student_last_name || ''}`.trim()
+              : 'Student',
+            teacherAvatar: lesson.teacher_image || '/placeholder.svg',
+            studentAvatar: lesson.student_image || '/placeholder.svg',
+            date: lesson.start_time,
+            startTime: lesson.start_time,
+            endTime: lesson.end_time,
+            status: String(lesson.status || '').toLowerCase() === 'scheduled' ? 'confirmed' : String(lesson.status || '').toLowerCase(),
+            language: lesson.type || 'Language Lesson',
+            topic: `${lesson.duration_minutes || 60} minute ${lesson.type || 'lesson'}`,
+            meetingLink: lesson.meeting_link || lesson.meetingLink || null,
+            studentTimezone: lesson.student_timezone,
+            focus: lesson.focus || parsedNotes.lessonFocus || "",
+            studentNotes: parsedNotes.studentNotes || "",
+            requestedStart: parsedNotes.requestedStart || "",
+            requestedEnd: parsedNotes.requestedEnd || "",
+          }
+        })
         setUpcomingLessons(transformedUpcoming)
       }
 
       if (pastResponse.ok) {
         const pastData = await pastResponse.json()
-        const transformedPast = pastData.map((lesson: any) => ({
+        const transformedPast = pastData.map((lesson: any) => {
+          const parsedNotes = parseLessonNotes(lesson.notes)
+
+          return {
           id: lesson.id || lesson.lesson_id || lesson.lessonId || null,
           teacherId: lesson.teacher_id,
           studentId: lesson.student_id,
@@ -214,7 +260,12 @@ export default function SchedulePage() {
           status: String(lesson.status || '').toLowerCase(),
           language: lesson.type || 'Language Lesson',
           topic: `${lesson.duration_minutes || 60} minute ${lesson.type || 'lesson'}`,
-        }))
+          focus: lesson.focus || parsedNotes.lessonFocus || "",
+          studentNotes: parsedNotes.studentNotes || "",
+          requestedStart: parsedNotes.requestedStart || "",
+          requestedEnd: parsedNotes.requestedEnd || "",
+          }
+        })
         setPastLessons(transformedPast)
       }
     } catch (error) {
@@ -906,6 +957,11 @@ export default function SchedulePage() {
     setDeclineDialogOpen(true)
   }
 
+  const openLessonRequestDialog = (lesson: Lesson) => {
+    setSelectedLessonRequest(lesson)
+    setLessonRequestDialogOpen(true)
+  }
+
   const handleDeclinePendingLesson = async () => {
     if (!selectedLessonForDecline?.id) {
       toast({
@@ -1240,6 +1296,16 @@ export default function SchedulePage() {
                         </div>
                       )}
                       <div className="w-full flex flex-wrap gap-2">
+                        {isTeacher ? (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1 min-w-[130px]"
+                            onClick={() => openLessonRequestDialog(lesson)}
+                          >
+                            View Request
+                          </Button>
+                        ) : null}
                         <Button
                           variant="outline"
                           size="sm"
@@ -1378,6 +1444,14 @@ export default function SchedulePage() {
                         </div>
                       </CardContent>
                       <CardFooter className="w-full flex flex-wrap gap-2 pt-3">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1 min-w-[130px]"
+                          onClick={() => openLessonRequestDialog(lesson)}
+                        >
+                          View Request
+                        </Button>
                         <Button
                           variant="outline"
                           size="sm"
@@ -1983,6 +2057,44 @@ export default function SchedulePage() {
             </Button>
             <Button variant="destructive" onClick={handleDeclinePendingLesson} disabled={isDeclining}>
               {isDeclining ? "Declining..." : "Decline with Note"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={lessonRequestDialogOpen} onOpenChange={setLessonRequestDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Lesson Request Summary</DialogTitle>
+            <DialogDescription>
+              Student goals and notes submitted during booking.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3 text-sm">
+            <div>
+              <p className="font-medium">Student</p>
+              <p className="text-muted-foreground">{selectedLessonRequest?.studentName || "Unknown student"}</p>
+            </div>
+            <div>
+              <p className="font-medium">Focus Area</p>
+              <p className="text-muted-foreground">{selectedLessonRequest?.focus || "Not provided"}</p>
+            </div>
+            <div>
+              <p className="font-medium">Student Notes</p>
+              <p className="text-muted-foreground whitespace-pre-wrap">{selectedLessonRequest?.studentNotes || "No additional notes"}</p>
+            </div>
+            {selectedLessonRequest?.requestedStart ? (
+              <div>
+                <p className="font-medium">Requested Start</p>
+                <p className="text-muted-foreground">{formatLessonDate(selectedLessonRequest.requestedStart)} {formatLessonTimeRange(selectedLessonRequest.requestedStart, selectedLessonRequest.requestedEnd || selectedLessonRequest.requestedStart, teacherTimezone)}</p>
+              </div>
+            ) : null}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setLessonRequestDialogOpen(false)}>
+              Close
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -728,6 +728,8 @@ export default function BookLessonPage() {
           lessonEndTime: endTimeIso,
           userTimezone: selectedTimezone,
           language: teacher.language,
+          lessonFocus,
+          studentNotes: notes,
           amount: price.total,
           paymentMethodId: selectedPaymentMethod,
         }),

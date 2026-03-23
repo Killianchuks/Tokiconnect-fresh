@@ -32,6 +32,8 @@ export async function POST(request: Request) {
     const lessonEndTime = metadata.lessonEndTime
     const userTimezone = metadata.userTimezone
     const language = metadata.language
+    const lessonFocus = metadata.lessonFocus
+    const studentNotes = metadata.studentNotes
 
     if (!userId || !teacherId) {
       return NextResponse.json({ error: "Missing booking information" }, { status: 400 })
@@ -174,8 +176,8 @@ export async function POST(request: Request) {
     const lessonResult = await db.rawQuery(
       `INSERT INTO lessons (
         teacher_id, student_id, status, type, start_time, end_time, 
-        duration_minutes, payment_id, payment_status, amount, notes, student_timezone, language, meeting_link
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+        duration_minutes, payment_id, payment_status, amount, focus, notes, student_timezone, language, meeting_link
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
       RETURNING *`,
       [
         teacherId,
@@ -188,10 +190,13 @@ export async function POST(request: Request) {
         sessionId,
         "paid",
         amount,
+        lessonFocus || null,
         JSON.stringify({
           timezone: userTimezone || null,
           requestedStart: lessonStartTime || null,
           requestedEnd: lessonEndTime || null,
+          lessonFocus: lessonFocus || null,
+          studentNotes: studentNotes || null,
         }),
         userTimezone || null,
         language || null,

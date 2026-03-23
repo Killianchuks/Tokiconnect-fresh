@@ -6,7 +6,20 @@ import { db } from "@/lib/db"
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { teacherId, lessonType, lessonDate, lessonDuration, lessonStartTime, lessonEndTime, userTimezone, amount, userId, language } = body
+    const {
+      teacherId,
+      lessonType,
+      lessonDate,
+      lessonDuration,
+      lessonStartTime,
+      lessonEndTime,
+      userTimezone,
+      amount,
+      userId,
+      language,
+      lessonFocus,
+      studentNotes,
+    } = body
     
     // Try session auth first, fall back to userId in body
     const token = await auth.getAuthCookie()
@@ -60,6 +73,8 @@ export async function POST(request: Request) {
         lessonEndTime: lessonEndTime || "",
         userTimezone: userTimezone || "",
         language: language || "",
+        lessonFocus: lessonFocus || "",
+        studentNotes: studentNotes || "",
       },
       mode: "payment",
       // Use http in development to avoid SSL issues when running locally without HTTPS

@@ -46,6 +46,10 @@ export interface Lesson {
   rating?: number
   meetingLink?: string
   studentTimezone?: string
+  focus?: string
+  studentNotes?: string
+  requestedStart?: string
+  requestedEnd?: string
 }
 
 export interface CalendarInfo {
